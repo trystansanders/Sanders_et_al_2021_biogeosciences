@@ -71,7 +71,6 @@ library(visreg)
 library(ggpubr)
 
 
-############################################# Graph 1
 ############################################# CALCIUM AND BICARBONATE GRAPHS
 
 data = read.table("Calcium_juvenile_calc_rates.txt", header = TRUE)
@@ -79,66 +78,6 @@ data
 data2 = read.table("Bicarbonate_juvenile_calc_rates.txt", header = TRUE)
 data2
 
-data2_2 = read.table("SM_growth_BC_Linf.txt", header=TRUE)
-data2_2
-
-descdist(log(dataSL$SL), discrete = F)
-fit.bin = fitdist(dataSL$SL, "pois", 
-                  method = c("qme"), 
-                  start=NULL, 
-                  fix.arg=NULL, 
-                  keepdata=TRUE,
-                  probs = 1)
-plot(fit.bin)
-?fitdist
-
-shapiro.test(data2$SM)
-leveneTest(sqrt(SM+1) ~ as.factor(salinity), data=data2)
-
-model1 = lm(log(SM+2) ~ bicarbonate_cont * as.factor(salinity),
-                data = data2)
-
-model2 = aov(log(SM+2) ~ log(bicarbonate_cont) * as.factor(salinity),
-                data = data2)
-summary(model1)
-##### calcium
-
-shapiro.test(data$SM)
-leveneTest(SM ~ as.factor(salinity), data=data)
-
-lm_ca = lm(SM ~ Ca * as.factor(salinity), data=data)
-summary(lm_ca)
-anova(lm_ca)
-
-### plotted growth curves
-
-
-plot(SM ~ bicarbonate_cont, data=data2,
-     xlim=c(0, 2500),
-     ylim=c(0, 60))
-lines(data26$bicarbonate_cont,
-      predict(VBGM6),
-      col = "green")
-lines(data26$bicarbonate_cont,
-      predict(VBGM11),
-      col = "red")
-lines(data26$bicarbonate_cont,
-      predict(VBGM16),
-      col = "blue")
-
-data26$VBGM = predict(VBGM6)
-data211$VBGM = predict(VBGM11)
-data216$VBGM = predict(VBGM16)
-
-mp_VGBM = c(data26$VBGM, data211$VBGM, data216$VBGM)
-mp_VGBM
-
-data2$GP = c(predict(GP6), predict(GP11), predict(GP16))
-data2$VBGM = models
-
-data2
-
-plot(VBGM ~ bicarbonate_cont, data=data216)
 
 ###VBGM
 
@@ -280,53 +219,6 @@ data$salinity = as.factor(data$salinity)
 data$salinity = as.character(data$salinity)
 data$salinity = factor(data$salinity, levels = c("16", "11", "6"))
 
-SL_CA = ggplot(data, aes(x = Ca, y = perc_SL, colour = salinity)) + 
-  geom_point(size = 2.5) +
-  stat_smooth(method = "lm", formula = y ~ log(x), size = 1.2, se = F) +
-  scale_color_manual(values=c("gray0", "gray47", "gray75")) +
-  #geom_line(data = mm, aes(x = S, y = v), colour = "cornflowerblue", size = 1.2) +
-  #geom_line(data = mm1, aes(x = S, y = v), colour = "forestgreen", size = 1.2) +
-  #geom_line(data = mm2, aes(x = S, y = v), colour = "firebrick3", size = 1.2) +
-  xlab("") +
-  ylab(expression(Shell ~ length ~ growth ~ (?m ~ day^{-1}  ))) +
-  theme_bw() + 
-  theme(legend.background = element_rect(fill="white", size=.5, 
-                                         linetype="dotted"), 
-        legend.justification=c(1,0), 
-        legend.position=c(0.4, 0.7), 
-        legend.title=element_blank(),
-        legend.text = element_text(size = 8),
-        panel.grid.major.x=element_blank(), 
-        panel.grid.minor.x=element_blank(), 
-        panel.grid.minor.y=element_blank(), 
-        panel.grid.major.y=element_blank(),
-        axis.text=element_text(size=10, colour = "black")) +
-  scale_y_continuous(limits=c(-0.2, 3.5), expand = c(0, 0)) +
-  scale_x_continuous(limits=c(0, 4), expand = c(0, 0))
-
-SL_BI = ggplot(data2, aes(x = bicarbonate_cont, y = perc_SL, colour = salinity)) + 
-  geom_point(size = 2.5) +
-  stat_smooth(method = "lm", formula = y ~ log(x), size = 1.2, se = F) +
-  scale_color_manual(values=c("gray0", "gray47", "gray75")) +
-  #geom_line(data = mm, aes(x = S, y = v), colour = "cornflowerblue", size = 1.2) +
-  #geom_line(data = mm1, aes(x = S, y = v), colour = "forestgreen", size = 1.2) +
-  #geom_line(data = mm2, aes(x = S, y = v), colour = "firebrick3", size = 1.2) +
-  xlab("") +
-  ylab("") +
-  theme_bw() + 
-  theme(legend.background = element_rect(fill="white", size=.5, 
-                                         linetype="dotted"), 
-        legend.justification=c(1,0), 
-        legend.position="none", 
-        legend.title=element_blank(),
-        legend.text = element_text(size = 8),
-        panel.grid.major.x=element_blank(), 
-        panel.grid.minor.x=element_blank(), 
-        panel.grid.minor.y=element_blank(), 
-        panel.grid.major.y=element_blank(),
-        axis.text=element_text(size=10, colour = "black")) +
-  scale_y_continuous(limits=c(-0.2, 3.5), expand = c(0, 0)) +
-  scale_x_continuous(limits=c(0, 2500), expand = c(0, 0))
 
 SM_CA = 
 ggplot(data, aes(x = Ca, y = SM, colour = salinity)) + 
@@ -392,14 +284,7 @@ theme(legend.background = element_rect(fill="white", size=.5), legend.position="
   scale_y_continuous(limits=c(0, 40), expand = c(0, 0)) +
   scale_x_discrete()
 
-#ion_plots = ggdraw(xlim = c(0, 1.1), ylim = c(0, 1.15)) +
-#draw_plot(SL_CA, x = 0, y = 0.5, width = 0.5, height = 0.61) +
-#draw_plot(SL_BI, x = 0.53, y = 0.5, width = 0.5, height = 0.5) + 
-#draw_plot(SM_CA, x = 0, y = 0, width = 0.5, height = 0.5) +
-#draw_plot(SM_BI, x = 0.53, y = 0, width = 0.5, height = 0.5) 
-#pdf("ion_growth_plots.pdf", width = 6, height = 6)
-#ion_plots
-#dev.off()
+#plot all graphs onto one output file
 
 ion_plots_SM = ggdraw(xlim = c(0, 1.15), ylim = c(0, 1.15)) +
 draw_plot(SM_BI, x = 0, y = 0.55, width = 1.1, height = 0.55) +
@@ -527,9 +412,6 @@ TukeyHSD(lm1, "as.factor(population)", conf.level = 0.95)
 
 z = dataSL$population = as.factor(dataSL$population)
 
-
-#dataSL$month = as.character(dataSL$month)
-#dataSL$month = factor(dataSL$month, levels = c("Aug 16", "Oct 16", "Jan 17", "Mar 17", "May 17", "Sep 17"))
 
 plotdist(dataSLm$mean, histo = TRUE, demp = TRUE)
 descdist(dataSL$SM, discrete = F, boot=1000)
@@ -823,7 +705,6 @@ chla_plots
 
 dev.off()
 
-######################################## Graph SUPPLEMENTARY
 ######################################## modelled chla data
 
 descdist(log(data_chla$chla), discrete = F)
@@ -903,99 +784,7 @@ chla2_plots
 
 dev.off()
 
-########################################## Graph 6
-########################################## Field Ca conc.
 
-descdist(data_Ca$Ca_calc[1:5000], discrete = F)
-fit.norm = fitdist(log(data_Ca$Ca_calc[1:5000]), "norm")
-plot(fit.norm)
-
-
-lm4 = aov(Ca_calc ~ site, data = data_Ca)
-anova(lm4)
-TukeyHSD(lm4, "site", conf.level = 0.95)
-
-kruskal.test(Ca_calc ~ site, data = data_Ca)
-dunnTest(data_Ca$Ca_calc, g = data_Ca$site, kw=TRUE, label=TRUE, wrap=FALSE, alpha=0.05)
-
-
-descdist(log(data_Ca$Ca_calc+10), discrete = F)
-fit.norm = fitdist(data_Ca$Ca_calc, "norm")
-plot(fit.norm)
-
-ks.test(data_Ca$Ca_calc ~ data_Ca$site)
-Summarize(Ca_calc ~ site, data = data_Ca)
-
-
-kruskal.test(Ca_calc ~ site, data = data_Ca)
-
-
-data_Ca = read.table("Calcium_all_2015_2018.txt", sep = "\t", header = TRUE)
-data_Ca
-
-data_Ca$date = as.Date(data_Ca$date, "%d.%m.%Y")
-data_Ca$date = as.Date(data_Ca$date, "%Y-%m-%d")
-
-data_Ca$site = as.character(data_Ca$site)
-data_Ca$site = factor(data_Ca$site, levels = c("Kiel", "Ahrenshoop", "Usedom"))
-
-
-Ca_all_sp = 
-ggplot(data_Ca, aes(x = date, y = Ca_calc, colour = site)) + 
-geom_point(size = .1) +
-#stat_smooth(method = "gam", formula = y ~ s(x, bs = "ps", k = 12), size = 1, se = F) +
-scale_color_manual(values=c("deepskyblue1", "seagreen4", "coral1")) +
-xlab("Date") + 
-ylab("Calcium conc.") +
-theme_bw() + 
-theme(legend.background = element_rect(fill="white", size=.5, 
-linetype="dotted"), 
-legend.justification=c(1,0), 
-legend.position="none", 
-legend.title=element_blank(),
-legend.text = element_text(size = 8),
-panel.grid.major.x=element_blank(), 
-panel.grid.minor.x=element_blank(), 
-panel.grid.minor.y=element_blank(), 
-panel.grid.major.y=element_blank(),
-axis.text=element_text(size=10, colour = "black")) +
-scale_x_date(breaks=seq(from=as.Date("2015-8-01"), to=as.Date("2017-12-01"), by="4 month"), 
-labels=date_format("%b. '%y"), limits=c(), expand = c(0, 0)) +
-scale_y_continuous(limits=c(0, 8), expand = c(0, 0))
-
-
-Ca_all_bp = 
-ggplot(data_Ca, aes(x = site, y = Ca_calc, colour = site)) + 
-geom_boxplot(size = .5, outlier.size = .05) +
-stat_smooth(method = "gam", formula = y ~ s(x, bs = "ps", k = 12), size = 1.5, se = F) +
-scale_color_manual(values=c("deepskyblue1", "seagreen4", "coral1")) +
-xlab("Site") + 
-ylab("") +
-theme_bw() + 
-theme(legend.background = element_rect(fill="white", size=.5, 
-linetype="dotted"), 
-legend.justification=c(1,0), 
-legend.position="none", 
-legend.title=element_blank(),
-legend.text = element_text(size = 8),
-panel.grid.major.x=element_blank(), 
-panel.grid.minor.x=element_blank(), 
-panel.grid.minor.y=element_blank(), 
-panel.grid.major.y=element_blank(),
-axis.text=element_text(size=10, colour = "black")) +
-scale_y_continuous(limits=c(0, 8), expand = c(0, 0))
-
-Ca_plots = ggdraw(xlim = c(0, 3), ylim = c(0, 1)) +
-draw_plot(Ca_all_sp, x = 0, y = 0, width = 2, height = 1) +
-draw_plot(Ca_all_bp, x = 2, y = 0, width = 1, height = 1) 
-
-pdf("Ca_plots.pdf", width = 9, height = 3)
-
-Ca_plots
-
-dev.off()
-
-####################################### Graph 7
 ####################################### Field HCO3
 
 descdist(log(datac$HCO3), discrete = F)
@@ -1074,7 +863,6 @@ field_hco3_plots
 
 dev.off()
 
-############################################ Graph 8
 ############################################ Field omega values
 
 descdist(log(datac$omega_ara), discrete = F)
@@ -1153,9 +941,6 @@ field_omega_plots
 
 dev.off()
 
-
-
-############################################ Graph 9
 ############################################ Field ESIR values
 
 descdist(log(datac$ex_SIR), discrete = F)
@@ -1236,8 +1021,6 @@ field_ESIR_plots
 
 dev.off()
 
-
-###################################### Graph 6 cont..
 ###################################### Field pH
 
 datac = read.table("Carb_chem_all.txt", header = TRUE)
@@ -1313,7 +1096,6 @@ field_pH_plots
 dev.off()
 
 
-###################################### Graph 10
 ###################################### SIR Omega
 
 descdist(log(data_S_O$ESIR), discrete = F)
@@ -1368,7 +1150,6 @@ summary(EM_omega)
 anova(EM_ESIR, EM_omega)
 summary()
 
-#######################################################
 ######################## Graph 11 calcification vs field parameters PANEL FIGURE
 
 data_FCL = read.table("Field_calc_linear.txt", sep = "\t", header = T)
@@ -1542,8 +1323,6 @@ Calc_v_env
 dev.off()
 
 
-
-
 ########### Expontential decay model hco3 and ca2+
 
 EM_calcium = nlsLM(shell_growth ~ 1 + Vm * (1-exp(-calcium/K)),
@@ -1554,7 +1333,7 @@ EM_bicarb = nlsLM(shell_growth ~ 1 + Vm * (1-exp(-bicarbonate/K)),
           start=list(Vm=5, K=32), data=data_S_O)
 summary(EM_bicarb)
 
-############
+############ plot model over data
 
 data_S_O = read.table("SIR_omega_calcification.txt", sep = "\t", header = T)
 data_S_O
@@ -1749,8 +1528,6 @@ cmax_K
 dev.off()
 
 
-#################################### Graph SUPPLEMENTARY
-
 #################################### ESIR ~ Omega
 
 datac = read.table("Carb_chem_all.txt", header = TRUE)
@@ -1790,9 +1567,6 @@ pdf("Omega_ESIR_plot.pdf", width = 4, height = 4)
 Omega_ESIR_plot
 
 dev.off()
-
-######################################## carbon species ratio
-
 
 
 
@@ -1903,14 +1677,6 @@ exp_mort
 
 dev.off()
 
-
-
-##############################################
-############################################## Graphs Feb 2018
-##############################################
-########################################### carb chem
-
-###################################### Graph 10
 ###################################### SIR Omega
 
 data_S_O = read.table("SIR_omega_calcification.txt", sep = "\t", header = T)
@@ -1983,24 +1749,6 @@ dev.off()
 dev.off()
 
 
-####################################### substrate inhibitor ratio
-
-
-data_S = read.table("limit_non-limit_substrate.txt", sep = "", header = T)
-data_S
-
-
-shapiro.test(data_S$sm)
-
-data_S$ca = as.factor(data_S$ca)
-data_S$hco3 = as.factor(data_S$hco3)
-
-leveneTest(as.factor(data_S$ca) ~ data_S$sm)
-
-
-t.test(sm ~ ca, data = data_S)
-t.test(sm ~ hco3, data = data_S)
-
 
 ########################## SUPPLEMENTARY: salinity-calcium relationships
 
@@ -2037,9 +1785,6 @@ ggplot(data_SCa, aes(x = salinity, y = Ca, colour = type)) +
 
 dev.off()
 
-#############Supplementary
-
-###################################### Graph 
 ###################################### Field Temperature
 
 install.packages("dunn.test")
