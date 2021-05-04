@@ -71,7 +71,7 @@ library(visreg)
 library(ggpubr)
 
 
-############################################# CALCIUM AND BICARBONATE GRAPHS
+###### CALCIUM AND BICARBONATE GRAPHS
 
 data = read.table("Calcium_juvenile_calc_rates.txt", header = TRUE)
 data
