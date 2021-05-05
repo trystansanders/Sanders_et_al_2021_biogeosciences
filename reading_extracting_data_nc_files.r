@@ -3,11 +3,16 @@ library(ncdf4)
 install.packages("plotrix")
 library(plotrix)
 
+# read in Chl-a data from copernicus database
+
 fn = "C:/Users/tryst/Desktop/PhD/Chl_a_Baltic/CHLa_SW_BalticSea_2017_07_01-2017_08_31_Copernicusdatabase.nc"
 nc = nc_open(fn)
 
 print(nc)
 attributes(nc$var)
+
+# format 3d data matrix
+    # 3D data matrix is longitude:latitude:time
 
 lon = ncvar_get(nc, "lon")
 nlon = dim(lon)
@@ -28,6 +33,8 @@ nt = dim(t)
 nt
 tunits
 
+# extract required data
+
 CHL_array = ncvar_get(nc, "CHL")
 dlname = ncatt_get(nc, "CHL", "long_name")
 dlname <- ncatt_get(nc,"CHL","long_name")
@@ -38,7 +45,8 @@ print(CHL_array)
 
 dim(CHL_array)
 
-####### KIEL
+# etract data for Kiel based on coordinates and time/date
+
 kiel = CHL_array[54:58, 127:131, 1:62]
 x = sum(!is.na(kiel))
 x
@@ -47,7 +55,8 @@ mean(kiel, na.rm = TRUE)
 sd(kiel, na.rm = TRUE)
 se1
 
-####### AHP
+# Ahrenshoop data
+
 ahp = CHL_array[173:177, 131:135, 1:62]
 y = sum(!is.na(ahp))
 y
@@ -56,7 +65,8 @@ mean(ahp, na.rm = TRUE)
 sd(ahp, na.rm = TRUE)
 se2
 
-#######USE
+# Usedom data
+
 use = CHL_array[272:276, 160:164, 1:62]
 z = sum(!is.na(ahp))
 z
@@ -73,9 +83,3 @@ dat2 = apply(dat, c(1, 2), mean, na.rm = TRUE)
 print(dat2)
 mean(dat2, na.rm = TRUE)
 
-######################################## example
-
-Daily_b06_45
-fn1 = "C:/Users/tryst/Desktop/PhD/Chl_a_Baltic/Daily_b06_45.nc"
-nc1 = nc_open(fn1)
-print(nc1)
