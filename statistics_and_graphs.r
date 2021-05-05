@@ -87,54 +87,18 @@ data2$salinity = as.factor(data2$salinity)
 data2$salinity = as.character(data2$salinity)
 data2$salinity = factor(data2$salinity, levels = c("16", "11", "6"))
 
-
-F2 = formula(SM~Linf*(1-exp(-K*(bicarbonate_cont-380)))^3|salinity)
-VBGM_all = nlsList(F2, data=data2,
-              start=list(Linf=20.33,K=0.01))
-summary(VBGM_all)
-AIC(VBGM_all)
+# Van Bertalanffy growth curve
 
 VBGM = nlsLM(SM~Linf*(1-exp(-K*(bicarbonate_cont-t0))), data=data2,
               start=list(Linf=20.33,K=1.27,t0=354))
-summary(VBGM)
-AIC(VBGM)
-
-VBGM6 = nlsLM(SM~Linf*(1-exp(-K*(bicarbonate_cont-380)))^3, data=data26,
-              start=list(Linf=4.26,K=0.27))
-VBGM11 = nlsLM(SM~Linf*(1-exp(-K*(bicarbonate_cont-380)))^3, data=data211,
-              start=list(Linf=30.8,K=0.36))
-VBGM16 = nlsLM(SM~Linf*(1-exp(-K*(bicarbonate_cont-380)))^3, data=data216,
-              start=list(Linf=31.8,K=0.2))
-
-summary(VBGM16)
-AIC(VBGM6, VBGM11, VBGM16)
-AIC(VBGM6, GP6, LC6, ed6, mm6)
-AIC(VBGM11, GP11, LC11, ed11, mm11)
-AIC(VBGM16, GP16, LC16, ed16, mm16)
-summary(VBGM11)
-AIC(VBGM11)
-summary(VBGM16)
-AIC(VBGM16)
 
 ### nls logistic curve
 
-LC6 = nls(SM~a*(1+b*(exp(-c*bicarbonate_cont)))^-1,
-          data=data26,
-          start=list(a= 5, b=380, c=0.01))
-LC11 = nls(SM~a*(1+b*(exp(-c*bicarbonate_cont)))^-1,
-          data=data211,
-          start=list(a= 30, b=380, c=0.01))
-LC16 = nls(SM~a*(1+b*(exp(-c*bicarbonate_cont)))^-1,
-           data=data216,
-           start=list(a= 30, b=380, c=0.01))
-summary(LC6)
-summary(LC11)
-summary(LC16)
 
 F3 = formula(SM~a*(1+380*(exp(-c*bicarbonate_cont)))^-1|salinity)
-LC_all = nlsList(F3, data=data2,
+LC = nlsList(F3, data=data2,
                    start=list(a=30,c=0.01))
-summary(LC_all)
+summary(LC)
 
 ### Gompertz model
 
@@ -179,28 +143,19 @@ summary(mm16)
 
 ######Yield-loss density
 
-yld6 = nls(SM ~ (Vm/K) * bicarbonate_cont / (1+ ((Vm/K)*bicarbonate_cont)/Vm),
+yld = nls(SM ~ (Vm/K) * bicarbonate_cont / (1+ ((Vm/K)*bicarbonate_cont)/Vm),
            start=list(Vm=6, K=400), data=data26)
-summary(yld6)
+summary(yld)
 
 #exponential decay model
 
-ed6 = nls(SM ~ Vm * (1-exp(-bicarbonate_cont/K)),
-              start=list(Vm = 5, K = 300), data=data26)
-ed11 = nls(SM ~ Vm * (1-exp(-bicarbonate_cont/K)),
-               start=list(Vm = 30, K = 300), data=data211)
-ed16 = nls(SM ~ Vm * (1-exp(-bicarbonate_cont/K)),
-               start=list(Vm = 30, K = 300), data=data216)
-
-summary(ed6)
-summary(ed11)
-summary(ed16)
 
 F2 = formula(log(SM+3) ~ Vm * (1-exp(-bicarbonate_cont/K))|salinity)
-edm_all = nlsList(F2, data=data2,
+edm = nlsList(F2, data=data2,
                    start=list(Vm=10.33,K=300))
-summary(edm_all)
-AIC(VBGM_all)
+summary(edm)
+
+AIC(VBGM, GP, LC, yld)
 
 ############
 
@@ -294,7 +249,7 @@ pdf("ion_growth_plots_SM.pdf", width = 6, height = 5)
 ion_plots_SM
 dev.off()
 
-######################################## Graph 2
+
 ######################################## Field SL growth rates
 
 ###############SL-SM relationships
@@ -460,9 +415,7 @@ scale_y_continuous(limits=c(0, 2500))
 
 dev.off()
 
-
-###################################### Graph 3
-###################################### Field Temperature
+# Field Temperature
 
 install.packages("dunn.test")
 
@@ -481,6 +434,7 @@ anova(lmph)
 
 TukeyHSD(lmph, "as.factor(site)", conf.level = 0.95)
 
+# plot field pH
 
 datac = read.table("Carb_chem_all.txt", header = TRUE)
 datac
@@ -543,9 +497,7 @@ field_pH_plots
 
 dev.off()
 
-
-####################################### Graph 4
-####################################### Field Salinity plots
+# Field Salinity plots
 
 descdist(log(data_S$value[1:5000]), discrete = F)
 fit.norm = fitdist(log(data_S$value[1:5000]), "norm")
@@ -559,9 +511,6 @@ TukeyHSD(lm2, "site", conf.level = 0.95)
 kruskal.test(value ~ site, data = data_S)
 dunnTest(data_S$value, g = data_S$site, kw=TRUE, label=TRUE, wrap=FALSE, alpha=0.05)
 
-
-
-
 data_S = read.table("Salinity_all_2015_2018.txt", sep = "\t", header = TRUE)
 data_S
 
@@ -570,7 +519,6 @@ data_S$date = as.Date(data_S$date, "%Y-%m-%d")
 
 data_S$site = as.character(data_S$site)
 data_S$site = factor(data_S$site, levels = c("Kiel", "Ahrenshoop", "Usedom"))
-
 
 sal_all_sp = ggplot(data_S, aes(x = date, y = value, colour = site)) + 
 geom_point(size = .1) +
@@ -625,8 +573,8 @@ S_plots
 
 dev.off()
 
-############################################## Graph 5
-############################################## Chl_a monitoring data
+
+#C hl_a monitoring data
 
 descdist(log(data_chla$chla), discrete = F)
 fit.norm = fitdist(log(data_chla$chla), "norm")
@@ -705,7 +653,7 @@ chla_plots
 
 dev.off()
 
-######################################## modelled chla data
+# modelled chla data
 
 descdist(log(data_chla$chla), discrete = F)
 fit.norm = fitdist(log(data_chla$chla), "norm")
@@ -785,14 +733,13 @@ chla2_plots
 dev.off()
 
 
-####################################### Field HCO3
+# Field HCO3
 
 descdist(log(datac$HCO3), discrete = F)
 fit.norm = fitdist(log(datac$HCO3), "norm")
 plot(fit.norm)
 
 leveneTest(datac$HCO3 ~ as.factor(site), data=datac)
-
 
 shapiro.test(datac$HCO3)
 
@@ -863,7 +810,7 @@ field_hco3_plots
 
 dev.off()
 
-############################################ Field omega values
+# Field omega values
 
 descdist(log(datac$omega_ara), discrete = F)
 fit.norm = fitdist(log(datac$omega_ara), "norm")
@@ -941,7 +888,7 @@ field_omega_plots
 
 dev.off()
 
-############################################ Field ESIR values
+# Field ESIR values
 
 descdist(log(datac$ex_SIR), discrete = F)
 fit.norm = fitdist(log(datac$ex_SIR), "norm")
@@ -949,14 +896,12 @@ plot(fit.norm)
 
 leveneTest(datac$ex_SIR ~ as.factor(site), data=datac)
 
-
 shapiro.test(log(datac$ex_SIR))
 
 lm7 = aov(log(ex_SIR) ~ as.factor(site), data = datac)
 anova(lm7)
 
 TukeyHSD(lm7, "as.factor(site)", conf.level = 0.95)
-
 
 datac = read.table("Carb_chem_all.txt", header = TRUE)
 datac
@@ -1021,82 +966,7 @@ field_ESIR_plots
 
 dev.off()
 
-###################################### Field pH
-
-datac = read.table("Carb_chem_all.txt", header = TRUE)
-datac
-
-shapiro.test(datac$pH)
-
-lm7 = aov(pH ~ as.factor(site), data = datac)
-anova(lm7)
-
-TukeyHSD(lm7, "as.factor(site)", conf.level = 0.95)
-
-
-
-datac$date = as.Date(datac$date, "%d/%m/%Y")
-#datac$date = as.Date(datac$date, "%Y-%m-%d")
-
-datac$site = as.character(datac$site)
-datac$site = factor(datac$site, levels = c("Kiel", "Ahrenshoop", "Usedom"))
-
-cc_pH_sp = 
-ggplot(datac, aes(x = date, y = pH, colour = site, shape = site)) + 
-geom_point(size = 4) +
-#geom_smooth(method = "lm", se = F) +
-scale_color_manual(values=c("yellow3", "aquamarine3", "steelblue4")) +
-xlab("Date") + 
-#ylab(expression(italic(C)[T]  ~ (?mol ~ kg^{-1}))) +
-theme_bw() + 
-theme(legend.background = element_rect(fill="white", size=.5, linetype="dotted"), 
-legend.justification=c(1,0), 
-legend.position="none", 
-legend.title=element_blank(),
-legend.text = element_text(size = 12),
-panel.grid.major.x=element_blank(), 
-panel.grid.minor.x=element_blank(), 
-panel.grid.minor.y=element_blank(), 
-panel.grid.major.y=element_blank(),
-axis.text=element_text(size=10, colour = "black")) +
-scale_x_date(breaks=seq(from=as.Date("2014-12-01"), to=as.Date("2017-12-01"), by="6 month"), 
-labels=date_format("%b. '%y"), limits=as.Date(c("2014-12-01", "2017-12-01"), expand = c(0, 0))) +
-scale_y_continuous(limits=c(7.4, 8.4), expand = c(0, 0))
-
-cc_pH_bp = 
-ggplot(datac, aes(x = site, y = pH, colour = site)) + 
-geom_boxplot(size = .5, outlier.size = .05) +
-#geom_smooth(method = "lm", se = F) +
-scale_color_manual(values=c("yellow3", "aquamarine3", "steelblue4")) +
-xlab("Site") + 
-ylab("") +
-theme_bw() + 
-theme(legend.background = element_rect(fill="white", size=.5, linetype="dotted"), 
-legend.justification=c(1,0), 
-legend.position="none", 
-legend.title=element_blank(),
-legend.text = element_text(size = 12),
-panel.grid.major.x=element_blank(), 
-panel.grid.minor.x=element_blank(), 
-panel.grid.minor.y=element_blank(), 
-panel.grid.major.y=element_blank(),
-axis.text=element_text(size=10, colour = "black")) +
-scale_y_continuous(limits=c(7.4, 8.4),
-expand = c(0, 0))
-
-
-field_pH_plots = ggdraw(xlim = c(0, 3), ylim = c(0, 1)) +
-draw_plot(cc_pH_sp, x = 0, y = 0, width = 2, height = 1) +
-draw_plot(cc_pH_bp, x = 2, y = 0, width = 1, height = 1) 
-
-pdf("field_pH_plots.pdf", width = 9, height = 3)
-
-field_pH_plots
-
-dev.off()
-
-
-###################################### SIR Omega
+# SIR Omega
 
 descdist(log(data_S_O$ESIR), discrete = F)
 descdist(data_S_O$shell_growth, discrete = F)
@@ -1150,7 +1020,7 @@ summary(EM_omega)
 anova(EM_ESIR, EM_omega)
 summary()
 
-######################## Graph 11 calcification vs field parameters PANEL FIGURE
+# calcification vs field parameters PANEL FIGURE
 
 data_FCL = read.table("Field_calc_linear.txt", sep = "\t", header = T)
 data_FCL
@@ -1323,7 +1193,7 @@ Calc_v_env
 dev.off()
 
 
-########### Expontential decay model hco3 and ca2+
+# Expontential decay model hco3 and ca2+
 
 EM_calcium = nlsLM(shell_growth ~ 1 + Vm * (1-exp(-calcium/K)),
           start=list(Vm=0., K=32), data=data_S_O)
@@ -1333,7 +1203,7 @@ EM_bicarb = nlsLM(shell_growth ~ 1 + Vm * (1-exp(-bicarbonate/K)),
           start=list(Vm=5, K=32), data=data_S_O)
 summary(EM_bicarb)
 
-############ plot model over data
+# plot EM model over data
 
 data_S_O = read.table("SIR_omega_calcification.txt", sep = "\t", header = T)
 data_S_O
@@ -1482,9 +1352,8 @@ SIR
 
 dev.off()
 
-
-######################## Cmax and K paramaters confidence intervals
-
+# max and K paramaters confidence intervals
+ 
 data_mp = read.table("mp1.txt", header = TRUE)
 data_mp
 
@@ -1528,7 +1397,7 @@ cmax_K
 dev.off()
 
 
-#################################### ESIR ~ Omega
+# ESIR ~ Omega
 
 datac = read.table("Carb_chem_all.txt", header = TRUE)
 datac
@@ -1568,9 +1437,7 @@ Omega_ESIR_plot
 
 dev.off()
 
-
-
-#################################### AT S relationship
+# AT S relationship
 
 descdist(data_S_TA$AT_meas, discrete = F)
 fit.norm = fitdist(data_S_TA$AT_meas, "norm")
@@ -1621,20 +1488,18 @@ axis.text=element_text(size=10, colour = "black")) +
 scale_x_continuous(limits=c(0, 30), expand = c(0, 0)) +
 scale_y_continuous(limits=c(0, 3000), expand = c(0, 0))
 
-
-
 pdf("field_salinity_TA_plot.pdf", width = 6, height = 4)
 
 AT_S_field
 
 dev.off()
 
-################## Bicarbonate experiment mortality rates
+#  Bicarbonate experiment mortality rates
 
 data_mort = read.table("bicarb_mortality.txt", header=TRUE)
 data_mort
 
-######stats
+# statistical tests for mortality
 
 shapiro.test(data_mort$percent_mort)
 bartlett.test(percent_mort ~ as.factor(salinity), data=data_mort)
@@ -1644,7 +1509,7 @@ anova(aov_mort)
 
 TukeyHSD(aov_mort, "as.factor(salinity)", conf.level = 0.95)
 
-######graph
+# graph for mortality
 
 data_mort$salinity = as.factor(data_mort$salinity)
 data_mort$salinity = as.character(data_mort$salinity)
@@ -1677,7 +1542,7 @@ exp_mort
 
 dev.off()
 
-###################################### SIR Omega
+# SIR ~ Omega
 
 data_S_O = read.table("SIR_omega_calcification.txt", sep = "\t", header = T)
 data_S_O
@@ -1744,13 +1609,7 @@ O_SIR
 
 dev.off()
 
-
-
-dev.off()
-
-
-
-########################## SUPPLEMENTARY: salinity-calcium relationships
+# salinity-calcium relationships
 
 data_SCa = read.table("salinity_calcium_relationships.txt", sep = "", header = T)
 data_SCa
@@ -1782,84 +1641,6 @@ ggplot(data_SCa, aes(x = salinity, y = Ca, colour = type)) +
   )+
   scale_x_continuous(limits=c(0, 20), expand = c(0, 0)) +
   scale_y_continuous(limits=c(0, 6), expand = c(0, 0)) 
-
-dev.off()
-
-###################################### Field Temperature
-
-install.packages("dunn.test")
-
-descdist(log(data_T$value[1:5000]), discrete = F)
-fit.norm = fitdist(data_T$value, "norm")
-plot(fit.norm)
-
-kruskal.test(value ~ site, data = data_T)
-dunnTest(data_T$value, g = data_T$site, kw=TRUE, label=TRUE, wrap=FALSE, alpha=0.05)
-
-
-data_T = read.table("Temperature_all_2015_2018.txt", sep = "\t", header = TRUE)
-data_T
-
-data_T$date = as.Date(data_T$date, "%d.%m.%Y")
-data_T$date = as.Date(data_T$date, "%Y-%m-%d")
-
-data_T$site = as.character(data_T$site)
-data_T$site = factor(data_T$site, levels = c("Kiel", "Ahrenshoop", "Usedom"))
-
-#pdf("Temperature_time_series_2015-2018.pdf", width = 6, height = 3)
-
-temp_all_sp = 
-ggplot(data_T, aes(x = date, y = value, colour = site)) + 
-geom_point(size = .1) +
-#stat_smooth(method = "gam", formula = y ~ s(x, bs = "ps", k = 12), size = 1, se = F) +
-scale_color_manual(values=c("yellow3", "aquamarine3", "steelblue4")) +
-xlab("Date") + 
-ylab("Temperature (?C)") +
-theme_bw() + 
-theme(legend.background = element_rect(fill="white", size=.5, 
-linetype="dotted"), 
-legend.justification=c(1,0), 
-legend.position="none", 
-legend.title=element_blank(),
-legend.text = element_text(size = 8),
-panel.grid.major.x=element_blank(), 
-panel.grid.minor.x=element_blank(), 
-panel.grid.minor.y=element_blank(), 
-panel.grid.major.y=element_blank(),
-axis.text=element_text(size=10, colour = "black")) +
-scale_x_date(breaks=seq(from=as.Date("2015-8-01"), to=as.Date("2017-12-01"), by="4 month"), 
-labels=date_format("%b. '%y"), limits=c(), expand = c(0, 0)) +
-scale_y_continuous(limits=c(-5, 25), expand = c(0, 0))
-
-
-temp_all_bp = 
-ggplot(data_T, aes(x = site, y = value, colour = site)) + 
-geom_boxplot(size = .5, outlier.size = .05) +
-stat_smooth(method = "gam", formula = y ~ s(x, bs = "ps", k = 12), size = 1.5, se = F) +
-scale_color_manual(values=c("yellow3", "aquamarine3", "steelblue4")) +
-xlab("Site") + 
-ylab("") +
-theme_bw() + 
-theme(legend.background = element_rect(fill="white", size=.5, 
-linetype="dotted"), 
-legend.justification=c(1,0), 
-legend.position="none", 
-legend.title=element_blank(),
-legend.text = element_text(size = 8),
-panel.grid.major.x=element_blank(), 
-panel.grid.minor.x=element_blank(), 
-panel.grid.minor.y=element_blank(), 
-panel.grid.major.y=element_blank(),
-axis.text=element_text(size=10, colour = "black")) +
-scale_y_continuous(limits=c(-5, 25), expand = c(0, 0))
-
-T_plots = ggdraw(xlim = c(0, 3), ylim = c(0, 1)) +
-draw_plot(temp_all_sp, x = 0, y = 0, width = 2, height = 1) +
-draw_plot(temp_all_bp, x = 2, y = 0, width = 1, height = 1) 
-
-pdf("T_plots.pdf", width = 9, height = 3)
-
-T_plots
 
 dev.off()
 
