@@ -80,7 +80,7 @@ data2 = read.table("Bicarbonate_juvenile_calc_rates.txt", header = TRUE)
 data2
 
 
-###format data strings as factors
+# format data strings as factors
 
 
 data2 = read.table("Bicarbonate_juvenile_calc_rates.txt", header = TRUE)
