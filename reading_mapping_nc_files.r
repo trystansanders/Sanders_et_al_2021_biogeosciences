@@ -3,13 +3,19 @@ install.packages("ncdf4")
 install.packages("raster")
 install.packages("viridis")
 
+# load required libraries 
+
 library(oceanmap)
 library(ncdf4)
 library(raster)
 library(viridis)
 
+# read in data in .nc format
+
 fn = "dataset-bal-analysis-forecast-phy-monthlymeans_1600248953439.nc"
 nc = nc_open(fn)
+
+# set colours
 
 n <- colorRampPalette(c("blue", "aquamarine4", "khaki1"))(100)
 
