@@ -1,4 +1,3 @@
-check
 #restructuring and aggregating data formats
 install.packages("reshape2")
 #fits parametric distributions of data
@@ -73,13 +72,15 @@ library(ggpubr)
 
 ###### CALCIUM AND BICARBONATE GRAPHS
 
+# read in data
+
 data = read.table("Calcium_juvenile_calc_rates.txt", header = TRUE)
 data
 data2 = read.table("Bicarbonate_juvenile_calc_rates.txt", header = TRUE)
 data2
 
 
-###VBGM
+###format data strings as factors
 
 
 data2 = read.table("Bicarbonate_juvenile_calc_rates.txt", header = TRUE)
@@ -157,23 +158,14 @@ summary(edm)
 
 AIC(VBGM, GP, LC, yld)
 
-############
+# format data as factors
 
-
-
-data2_2$salinity = as.factor(data2_2$salinity)
-data2_2$salinity = as.character(data2_2$salinity)
-data2_2$salinity = factor(data2_2$salinity, levels = c("6", "11", "16"))
-
-
-data2$salinity = as.factor(data2$salinity)
-data2$salinity = as.character(data2$salinity)
-data2$salinity = factor(data2$salinity, levels = c("16", "11", "6"))
 
 data$salinity = as.factor(data$salinity)
 data$salinity = as.character(data$salinity)
 data$salinity = factor(data$salinity, levels = c("16", "11", "6"))
 
+# plot data
 
 SM_CA = 
 ggplot(data, aes(x = Ca, y = SM, colour = salinity)) + 
